@@ -2,7 +2,7 @@ const LuckyNumbers = () => {
   return (
     <section className="mx-4">
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-        <div className="bg-gradient-to-r from-secondary/10 to-transparent p-4">
+        <div className="bg-secondary/5 p-4 rounded-xl">
           <h2 className="text-lg font-bold text-secondary mb-1">행운의 번호</h2>
           <p className="text-sm text-gray-500">이번 주 추천 번호</p>
         </div>

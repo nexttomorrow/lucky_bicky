@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoChevronBack } from 'react-icons/io5';
+import { signUp } from '../../../firebase/auth';
 
 const INTEREST_TAGS = [
   { id: 1, label: '운세' },
@@ -24,10 +25,13 @@ const SignUp = () => {
     passwordConfirm: '',
     name: '',
     nickname: '',
+    gender: '',
     birthdate: '',
     phone: '',
     referralCode: '',
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleTagSelect = (tag) => {
     if (selectedTags.includes(tag)) {
@@ -37,14 +41,87 @@ const SignUp = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    // 필수 필드 검사
+    if (!formData.email?.trim()) {
+      throw new Error('이메일을 입력해주세요.');
+    }
+    if (!formData.password?.trim()) {
+      throw new Error('비밀번호를 입력해주세요.');
+    }
+    if (!formData.name?.trim()) {
+      throw new Error('이름을 입력해주세요.');
+    }
+    if (!formData.nickname?.trim()) {
+      throw new Error('닉네임을 입력해주세요.');
+    }
+    if (!formData.gender) {
+      throw new Error('성별을 선택해주세요.');
+    }
+
+    // 이메일 형식 검사
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      throw new Error('유효한 이메일 주소를 입력해주세요.');
+    }
+
+    // 비밀번호 검사
+    if (formData.password.length < 6) {
+      throw new Error('비밀번호는 6자리 이상이어야 합니다.');
+    }
+
+    // 비밀번호 확인 검사
+    if (formData.password !== formData.passwordConfirm) {
+      throw new Error('비밀번호가 일치하지 않습니다.');
+    }
+
+    // 전화번호 형식 검사 (선택적)
+    if (formData.phone) {
+      const phoneRegex = /^01[0-9]-?[0-9]{4}-?[0-9]{4}$/;
+      if (!phoneRegex.test(formData.phone.replace(/-/g, ''))) {
+        throw new Error('유효한 휴대폰 번호를 입력해주세요.');
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // 회원가입 처리 로직
-    console.log(formData, selectedTags);
+    setError('');
+    setLoading(true);
+
+    try {
+      validateForm();
+      
+      // 회원가입 요청 전 데이터 정리
+      const signUpData = {
+        email: formData.email.trim(),
+        password: formData.password,
+        name: formData.name.trim(),
+        nickname: formData.nickname.trim(),
+        birthdate: formData.birthdate,
+        phone: formData.phone?.trim(),
+        interests: selectedTags.map(tag => tag.label),
+        referralCode: formData.referralCode?.trim()
+      };
+
+      console.log('회원가입 요청 데이터:', signUpData); // 디버깅용
+
+      const user = await signUp(signUpData);
+      console.log('회원가입 성공:', user); // 디버깅용
+
+      alert('회원가입이 완료되었습니다. 이메일 인증을 진행해주세요.');
+      navigate('/profile');
+      
+    } catch (error) {
+      console.error('회원가입 에러:', error); // 디버깅용
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-2">
+    <div className="min-h-screen bg-white pt-2">
       <div className="flex items-center px-4 mb-6">
         <button 
           onClick={() => navigate(-1)}
@@ -54,6 +131,14 @@ const SignUp = () => {
         </button>
         <h1 className="text-2xl font-bold ml-2">회원가입</h1>
       </div>
+
+      {error && (
+        <div className="px-4 mb-4">
+          <div className="bg-red-50 text-red-500 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="px-4 space-y-6">
         {/* 기본 정보 섹션 */}
@@ -124,6 +209,38 @@ const SignUp = () => {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">성별</label>
+            <div className="flex gap-3">
+              <label className="flex-1">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="male"
+                  checked={formData.gender === 'male'}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  className="sr-only peer"
+                />
+                <div className="text-center py-3 border border-gray-200 rounded-lg peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition-colors cursor-pointer">
+                  남성
+                </div>
+              </label>
+              <label className="flex-1">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="female"
+                  checked={formData.gender === 'female'}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  className="sr-only peer"
+                />
+                <div className="text-center py-3 border border-gray-200 rounded-lg peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary transition-colors cursor-pointer">
+                  여성
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
             <input
               type="date"
@@ -188,9 +305,21 @@ const SignUp = () => {
         {/* 가입하기 버튼 */}
         <button
           type="submit"
-          className="w-full py-4 bg-primary text-white rounded-xl font-medium hover:bg-primary-dark transition-colors mb-8"
+          disabled={loading}
+          className={`w-full py-4 bg-primary text-white rounded-xl font-medium 
+            transition-colors mb-8 relative
+            ${loading ? 'bg-primary/70' : 'hover:bg-primary-dark'}`}
         >
-          가입하기
+          {loading ? (
+            <>
+              <span className="opacity-0">가입하기</span>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              </div>
+            </>
+          ) : (
+            '가입하기'
+          )}
         </button>
       </form>
     </div>

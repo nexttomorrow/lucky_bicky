@@ -7,6 +7,10 @@ import ProfilePage from '../pages/Profile';
 import AllActivities from '../pages/Profile/pages/AllActivities';
 import SavedResultsPage from '../pages/Profile/pages/SavedResults';
 import SignUp from '../pages/Profile/pages/SignUp';
+import NotificationSettings from '../pages/Profile/pages/NotificationSettings';
+import AccountManagement from '../pages/Profile/pages/AccountManagement';
+import PremiumSubscription from '../pages/Profile/pages/PremiumSubscription';
+import PrivacyPolicy from '../pages/Profile/pages/PrivacyPolicy';
 
 const AppRoutes = () => {
   return (
@@ -19,6 +23,10 @@ const AppRoutes = () => {
       <Route path="/profile/activities" element={<AllActivities />} />
       <Route path="/profile/saved" element={<SavedResultsPage />} />
       <Route path="/profile/signup" element={<SignUp />} />
+      <Route path="/profile/notifications" element={<NotificationSettings />} />
+      <Route path="/profile/account" element={<AccountManagement />} />
+      <Route path="/profile/premium" element={<PremiumSubscription />} />
+      <Route path="/profile/privacy" element={<PrivacyPolicy />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
