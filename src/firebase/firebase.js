@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,29 +14,11 @@ const firebaseConfig = {
 };
 
 // Firebase 초기화
-export const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+const app = initializeApp(firebaseConfig);
 
-export const requestNotificationPermission = async () => {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const token = await getToken(messaging, {
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-      });
-      return token;
-    }
-    return null;
-  } catch (error) {
-    console.error('알림 권한 요청 실패:', error);
-    return null;
-  }
-};
+// Firebase 서비스 초기화
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      console.log('메시지 수신:', payload);
-      resolve(payload);
-    });
-}); 
+export default app; 
