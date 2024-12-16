@@ -103,5 +103,10 @@ export default defineConfig({
         }
       }
     }
+  },
+  template: {
+    transformIndexHtml: {
+      enforce: 'pre'
+    }
   }
 }) 
