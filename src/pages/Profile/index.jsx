@@ -72,7 +72,6 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[430px] mx-auto bg-white min-h-screen pb-20">
         <div className="space-y-6 pt-2">
-          <h1 className="text-2xl font-bold px-4 mb-4">내 정보</h1>
           {isLoggedIn && user ? (
             <>
               <UserProfile user={user} />

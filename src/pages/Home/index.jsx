@@ -1,73 +1,56 @@
-import { useAuth } from '../../contexts/AuthContext';
-import { useSubscription } from '../../contexts/SubscriptionContext';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DailyFortune from './components/DailyFortune';
+import { useSubscription } from '../../contexts/SubscriptionContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { IoSparkles } from 'react-icons/io5';
 import LuckyNumbers from './components/LuckyNumbers';
-import MarketingBanner from './components/MarketingBanner';
-import PopularNames from './components/PopularNames';
-import TodayLuckySpots from './components/TodayLuckySpots';
-import QuickActions from './components/QuickActions';
-import HookingMessage from './components/HookingMessage';
+import TodayFortune from './components/TodayFortune';
 
 const HomePage = () => {
-  const { user } = useAuth();
-  const { isPremium } = useSubscription();
   const navigate = useNavigate();
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white pt-2">
-        <div className="px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">서비스 이용 안내</h1>
-          <p className="text-gray-600 mb-6">
-            로그인하시면 운세, 로또, 작명 서비스를<br />
-            모두 이용하실 수 있습니다.
-          </p>
-          <button
-            onClick={() => navigate('/login')}
-            className="w-full py-3 bg-primary text-white rounded-xl font-medium"
-          >
-            로그인하기
-          </button>
-          <p className="mt-4 text-sm text-gray-500">
-            아직 회원이 아니신가요?{' '}
-            <button
-              onClick={() => navigate('/signup')}
-              className="text-primary font-medium"
-            >
-              회원가입
-            </button>
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const { isPremium } = useSubscription();
+  const { user } = useAuth();
 
   return (
-    <div className="space-y-6 pt-2">
-      <HookingMessage />
-      <DailyFortune />
-      {!isPremium && (
-        <MarketingBanner 
-          type="premium"
-          title="더 자세한 운세가 궁금하다면?"
-          description="AI가 분석한 맞춤형 운세"
-          ctaText="프리미엄 이용하기"
-        />
-      )}
-      <LuckyNumbers />
-      <PopularNames />
-      {!isPremium && (
-        <MarketingBanner 
-          type="event"
-          title="첫 구매 50% 할인"
-          description="지금 가입하면 모든 서비스 반값!"
-          ctaText="혜택 받기"
-          bgColor="bg-gradient-to-r from-purple-500 to-pink-500"
-        />
-      )}
-      <TodayLuckySpots />
-      <QuickActions />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-[430px] mx-auto bg-white min-h-screen pb-20">
+        {/* 오늘의 운세 */}
+        <section className="px-4 pt-4 mb-6">
+          <TodayFortune />
+        </section>
+
+        {/* 행운의 번호 */}
+        <section className="px-4 mb-6">
+          <LuckyNumbers />
+        </section>
+
+        {/* 프리미엄 배너 - 비프리미엄 사용자에게만 표시 */}
+        {!isPremium && (
+          <section className="px-4 mb-6">
+            <div className="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">프리미엄 서비스</h3>
+                  <p className="text-sm opacity-90 mb-4">
+                    더 자세한 운세와 개인 맞춤 분석을<br />
+                    지금 바로 만나보세요
+                  </p>
+                  <button
+                    onClick={() => navigate('/profile/premium')}
+                    className="px-6 py-2 bg-white text-primary rounded-xl font-medium
+                             hover:bg-gray-50 transition-colors"
+                  >
+                    자세히 보기
+                  </button>
+                </div>
+                <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center">
+                  <IoSparkles className="w-12 h-12 text-white" />
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 };

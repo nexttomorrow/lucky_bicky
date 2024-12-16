@@ -1,35 +1,23 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from '../pages/Home';
-import FortunePage from '../pages/Fortune';
-import LottoPage from '../pages/Lotto';
-import NamingPage from '../pages/Naming';
-import ProfilePage from '../pages/Profile';
-import AllActivities from '../pages/Profile/pages/AllActivities';
-import SavedResultsPage from '../pages/Profile/pages/SavedResults';
-import SignUp from '../pages/Profile/pages/SignUp';
-import NotificationSettings from '../pages/Profile/pages/NotificationSettings';
-import AccountManagement from '../pages/Profile/pages/AccountManagement';
-import PremiumSubscription from '../pages/Profile/pages/PremiumSubscription';
-import PrivacyPolicy from '../pages/Profile/pages/PrivacyPolicy';
-import HourlyFortune from '../pages/Fortune/pages/HourlyFortune';
+import { Routes, Route } from 'react-router-dom';
+import Home from '../pages/Home';
+import Fortune from '../pages/Fortune';
+import Lotto from '../pages/Lotto';
+import Naming from '../pages/Naming';
+import Profile from '../pages/Profile';
+import LoginPage from '../pages/Login';
+import SignupPage from '../pages/Signup';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/fortune" element={<FortunePage />} />
-      <Route path="/lotto" element={<LottoPage />} />
-      <Route path="/naming" element={<NamingPage />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/profile/activities" element={<AllActivities />} />
-      <Route path="/profile/saved" element={<SavedResultsPage />} />
-      <Route path="/profile/signup" element={<SignUp />} />
-      <Route path="/profile/notifications" element={<NotificationSettings />} />
-      <Route path="/profile/account" element={<AccountManagement />} />
-      <Route path="/profile/premium" element={<PremiumSubscription />} />
-      <Route path="/profile/privacy" element={<PrivacyPolicy />} />
-      <Route path="/fortune/hourly" element={<HourlyFortune />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/fortune" element={<Fortune />} />
+      <Route path="/lotto" element={<Lotto />} />
+      <Route path="/naming" element={<Naming />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/profile/premium" element={<Profile />} />
     </Routes>
   );
 };
