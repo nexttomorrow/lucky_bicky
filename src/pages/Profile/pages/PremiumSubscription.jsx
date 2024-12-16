@@ -1,38 +1,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoChevronBack, IoSparkles, IoStar, IoTicket, IoText } from 'react-icons/io5';
+import { useAuth } from '../../../contexts/AuthContext';
+import { handleSubscription, SUBSCRIPTION_TYPES } from '../../../utils/subscription';
+import { USER_ROLES } from '../../../firebase/auth';
 
 const PremiumSubscription = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('fortune');
   const [selectedPlan, setSelectedPlan] = useState(null);
-
-  const categories = [
-    { id: 'fortune', label: '운세', icon: IoSparkles },
-    { id: 'lotto', label: '로또', icon: IoTicket },
-    { id: 'combo', label: '패키지', icon: IoStar },
-    { id: 'naming', label: '작명', icon: IoText },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const subscriptionPlans = {
     fortune: {
-      title: '프리미엄 운세 (사주)',
+      title: '프리미엄 운세',
       description: '운세에 특화된 인공지능이 분석하는 정확한 운세',
+      type: SUBSCRIPTION_TYPES.FORTUNE,
+      role: USER_ROLES.PREMIUM,
+      icon: IoSparkles,
       features: [
         '매일 업데이트되는 상세 운세',
-        '사주와 궁합 심층 분석',
+        '시간대별 행운 정보',
         '실시간 1:1 전문가 상담',
         '광고 없는 프리미엄 경험'
       ],
       plans: [
         {
-          id: 'fortune-monthly',
+          id: `${SUBSCRIPTION_TYPES.FORTUNE}-1`,
           period: '월간',
           price: '9,900',
           description: '매월 자동 결제'
         },
         {
-          id: 'fortune-yearly',
+          id: `${SUBSCRIPTION_TYPES.FORTUNE}-12`,
           period: '연간',
           price: '100,980',
           originalPrice: '118,800',
@@ -41,90 +43,145 @@ const PremiumSubscription = () => {
       ]
     },
     lotto: {
-      title: '프리미엄 로또번호',
-      description: '로또 당첨 패턴을 학습한 AI의 정교한 번호 추천',
+      title: '프리미엄 로또',
+      description: 'AI가 분석한 맞춤형 번호 추천',
+      type: SUBSCRIPTION_TYPES.LOTTO,
+      role: USER_ROLES.PREMIUM,
+      icon: IoTicket,
       features: [
-        'AI 기반 맞춤형 번호 추천',
-        '당첨 확률 상세 분석',
-        '주별 당첨 패턴 리포트',
-        '프리미엄 번호 생성기'
+        'AI 기반 번호 추천',
+        '당첨 확률 분석',
+        '실시간 당첨 알림',
+        '당첨금 자동 정산'
       ],
       plans: [
         {
-          id: 'lotto-monthly',
+          id: `${SUBSCRIPTION_TYPES.LOTTO}-1`,
           period: '월간',
           price: '19,900',
           description: '매월 자동 결제'
         },
         {
-          id: 'lotto-yearly',
+          id: `${SUBSCRIPTION_TYPES.LOTTO}-12`,
           period: '연간',
-          price: '203,000',
+          price: '190,980',
           originalPrice: '238,800',
-          description: '연간 결제 (15% 할인)'
+          description: '연간 결제 (20% 할인)'
         }
       ]
     },
     combo: {
       title: '프리미엄 패키지',
-      description: '운세와 로또 서비스를 모두 이용하는 완벽한 선택',
+      description: '모든 프리미엄 기능을 한번에',
+      type: SUBSCRIPTION_TYPES.COMBO,
+      role: USER_ROLES.VIP,
+      icon: IoStar,
       features: [
-        '모든 프리미엄 운세 기능',
-        '모든 프리미엄 로또 기능',
-        '전용 고객센터 지원',
-        'VIP 전용 이벤트 참여'
+        '운세 + 로또 모든 기능',
+        'VIP 전용 컨텐츠',
+        '우선 상담 서비스',
+        '전용 매니저 배정'
       ],
       plans: [
         {
-          id: 'combo-monthly',
+          id: `${SUBSCRIPTION_TYPES.COMBO}-1`,
           period: '월간',
           price: '24,900',
           description: '매월 자동 결제'
         },
         {
-          id: 'combo-yearly',
+          id: `${SUBSCRIPTION_TYPES.COMBO}-12`,
           period: '연간',
-          price: '254,000',
+          price: '249,000',
           originalPrice: '298,800',
-          description: '연간 결제 (15% 할인)'
+          description: '연간 결제 (25% 할인)'
         }
       ]
     },
     naming: {
-      title: '프리미엄 작명',
-      description: '전통과 현대를 아우르는 AI 기반 작명 서비스',
+      title: '작명 서비스',
+      description: '전문가의 이름 분석과 추천',
+      type: SUBSCRIPTION_TYPES.NAMING,
+      role: USER_ROLES.PREMIUM,
+      icon: IoText,
       features: [
-        '사주 기반 이름 추천',
-        '한자 음양오행 분석',
-        '획수 및 발음 분석',
-        '상세 작명 보고서'
+        '전문가의 이름 분석',
+        '획수와 음양오행 분석',
+        '발음과 뜻 풀이',
+        '사주와의 조화 분석'
       ],
       plans: [
         {
-          id: 'naming-single',
-          count: 1,
+          id: `${SUBSCRIPTION_TYPES.NAMING}-1`,
+          credits: 1,
           price: '50,000',
           description: '1회 이용권'
         },
         {
-          id: 'naming-three',
-          count: 3,
+          id: `${SUBSCRIPTION_TYPES.NAMING}-3`,
+          credits: 3,
           price: '120,000',
           originalPrice: '150,000',
           description: '3회 이용권 (20% 할인)'
-        },
-        {
-          id: 'naming-five',
-          count: 5,
-          price: '190,000',
-          originalPrice: '250,000',
-          description: '5회 이용권 (24% 할인)'
         }
       ]
     }
   };
 
-  const currentPlan = subscriptionPlans[selectedCategory];
+  const handleSubscribe = async () => {
+    if (!selectedPlan || !user) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [planType, duration] = selectedPlan.split('-');
+      const selectedPlanInfo = subscriptionPlans[selectedCategory];
+      const durationNumber = parseInt(duration);
+
+      // 구독 처리 및 등급 업데이트
+      await handleSubscription(
+        user.uid,
+        planType,
+        durationNumber,
+        selectedPlanInfo.role
+      );
+
+      // 성공 메시지 표시 (선택사항)
+      alert(
+        selectedCategory === 'naming'
+          ? `${durationNumber}회 이용권 구매가 완료되었습니다.`
+          : '구독이 성공적으로 완료되었습니다.'
+      );
+
+      // 구독 성공 후 리다이렉트
+      switch (planType) {
+        case SUBSCRIPTION_TYPES.FORTUNE:
+          navigate('/fortune');
+          break;
+        case SUBSCRIPTION_TYPES.LOTTO:
+          navigate('/lotto');
+          break;
+        case SUBSCRIPTION_TYPES.COMBO:
+          navigate('/');
+          break;
+        case SUBSCRIPTION_TYPES.NAMING:
+          navigate('/naming');
+          break;
+        default:
+          navigate('/profile');
+      }
+    } catch (error) {
+      console.error('구독 처리 실패:', error);
+      setError('구독 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCurrentPlan = () => {
+    return subscriptionPlans[selectedCategory];
+  };
 
   return (
     <div className="min-h-screen bg-white pt-2">
@@ -143,46 +200,51 @@ const PremiumSubscription = () => {
         {/* 카테고리 선택 */}
         <div className="px-4 pb-4">
           <div className="flex space-x-2">
-            {categories.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => {
-                  setSelectedCategory(id);
-                  setSelectedPlan(null);
-                }}
-                className={`flex-1 py-3 px-2 rounded-xl flex flex-col items-center space-y-1.5 transition-colors
-                  ${selectedCategory === id 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-sm font-medium">{label}</span>
-              </button>
-            ))}
+            {Object.entries(subscriptionPlans).map(([category, plan]) => {
+              const Icon = plan.icon;
+              return (
+                <button
+                  key={category}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setSelectedPlan(null);
+                  }}
+                  className={`flex-1 py-3 px-2 rounded-xl flex flex-col items-center space-y-1.5 transition-colors
+                    ${selectedCategory === category 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{plan.title}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
       <div className="px-4 py-6 space-y-4">
-        {/* 서비스 소��� */}
+        {/* 서비스 소개 */}
         <section className="bg-white rounded-2xl p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">{currentPlan.title}</h2>
+            <h2 className="text-lg font-bold">{getCurrentPlan().title}</h2>
             {selectedCategory === 'combo' && (
               <div className="flex flex-col items-end">
                 <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
-                  가장 인기있는 구독
+                  VIP 등급 자동 부여
                 </span>
                 <span className="text-xs text-gray-500 mt-1">
-                  월 5,000원 더 저렴해요!
+                  모든 프리미엄 기능 이용 가능
                 </span>
               </div>
             )}
           </div>
-          <p className="text-gray-600 text-sm leading-relaxed mb-6">{currentPlan.description}</p>
+          <p className="text-gray-600 text-sm leading-relaxed mb-6">
+            {getCurrentPlan().description}
+          </p>
           
           <div className="space-y-3">
-            {currentPlan.features.map((feature, index) => (
+            {getCurrentPlan().features.map((feature, index) => (
               <div key={index} className="flex items-start space-x-3">
                 <div className="w-5 h-5 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mt-0.5">
                   <span className="text-primary text-sm">✓</span>
@@ -195,7 +257,7 @@ const PremiumSubscription = () => {
 
         {/* 요금제 선택 */}
         <section className="space-y-3">
-          {currentPlan.plans.map((plan) => (
+          {getCurrentPlan().plans.map((plan) => (
             <button
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id)}
@@ -253,17 +315,27 @@ const PremiumSubscription = () => {
 
         {/* 구독하기 버튼 */}
         <div className="bg-white pt-4">
+          {error && (
+            <div className="px-4 mb-4">
+              <div className="bg-red-50 text-red-500 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            </div>
+          )}
           <button 
-            disabled={!selectedPlan}
+            disabled={!selectedPlan || loading}
+            onClick={handleSubscribe}
             className={`w-full py-4 rounded-xl font-medium transition-colors
               ${selectedPlan 
                 ? 'bg-primary text-white hover:bg-primary/90' 
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
           >
-            {selectedCategory === 'naming' ? '구매하기' : '구독하기'}
+            {loading ? '처리 중...' : selectedCategory === 'naming' ? '구매하기' : '구독하기'}
           </button>
           <p className="text-center text-xs text-gray-500 mt-2">
-            언제든지 해지 가능 • 부분 환불 가능 • 안전한 결제
+            {selectedCategory === 'naming' 
+              ? '구매 후 즉시 이용 가능 • 유효기간 1년'
+              : '언제든지 해지 가능 • 부분 환불 가능 • 안전한 결제'}
           </p>
         </div>
 

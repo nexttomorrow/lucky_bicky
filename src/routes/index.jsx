@@ -11,6 +11,7 @@ import NotificationSettings from '../pages/Profile/pages/NotificationSettings';
 import AccountManagement from '../pages/Profile/pages/AccountManagement';
 import PremiumSubscription from '../pages/Profile/pages/PremiumSubscription';
 import PrivacyPolicy from '../pages/Profile/pages/PrivacyPolicy';
+import HourlyFortune from '../pages/Fortune/pages/HourlyFortune';
 
 const AppRoutes = () => {
   return (
@@ -27,6 +28,7 @@ const AppRoutes = () => {
       <Route path="/profile/account" element={<AccountManagement />} />
       <Route path="/profile/premium" element={<PremiumSubscription />} />
       <Route path="/profile/privacy" element={<PrivacyPolicy />} />
+      <Route path="/fortune/hourly" element={<HourlyFortune />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

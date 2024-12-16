@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      allow update: if request.auth != null && 
+        request.auth.uid == userId && 
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'roleUpdatedAt']));
+    }
+    
+    match /fortunes/{fortuneId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        fortuneId.matches(request.auth.uid + '_.*');
+    }
+    
+    match /subscriptions/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;  // 서버 사이드에서만 처리
+    }
+
+    match /payments/{paymentId} {
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow write: if false;  // 서버 사이드에서만 처리
+    }
+
+    match /weeklyFortunes/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /fortuneHistories/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /premiumContent/{docId} {
+      function isPremiumUser() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'PREMIUM';
+      }
+      
+      allow read: if request.auth != null && isPremiumUser();
+    }
+
+    match /settings/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false;  // 관리자만 수정 가능
+    }
+  }
+} 
